@@ -1,1 +1,12 @@
 GET http://localhost:8080/
+
+###
+GET http://localhost:8080/swagger-ui.html
+
+###
+
+GET http://localhost:8080/v3/swagger-ui.html
+
+###
+
+GET http://localhost:8080/v3/api-docs
