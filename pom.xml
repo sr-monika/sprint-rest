@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.fedex</groupId>
-    <artifactId>authconfig</artifactId>
+    <artifactId>edip-inventory</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>auth-config-service</name>
-    <description>fedex auth config service</description>
+    <name>spark edit inventory</name>
+    <description>sparc inventory api, related service</description>
     <properties>
         <java.version>18</java.version>
         <kotlin.version>1.7.21</kotlin.version>
