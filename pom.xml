@@ -89,11 +89,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-maven-noarg</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-ui</artifactId>
             <version>1.6.8</version>
@@ -103,27 +98,11 @@
             <artifactId>springdoc-openapi-kotlin</artifactId>
             <version>1.6.8</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.liquibase/liquibase-core -->
         <dependency>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-core</artifactId>
-            <version>4.16.0</version>
-        </dependency>
-        <!--		<dependency>-->
-        <!--			<groupId>com.fedex.authsdk</groupId>-->
-        <!--			<artifactId>auth-sdk</artifactId>-->
-        <!--			<version>1.0.5</version>-->
-        <!--		</dependency>-->
-        <dependency>
+            <!-- https://github.com/stleary/JSON-java -->
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20220924</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.passay/passay -->
-        <dependency>
-            <groupId>org.passay</groupId>
-            <artifactId>passay</artifactId>
-            <version>1.6.2</version>
         </dependency>
     </dependencies>
     <!-- https://mvnrepository.com/artifact/org.json/json -->
