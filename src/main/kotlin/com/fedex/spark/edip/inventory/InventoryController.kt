@@ -2,7 +2,6 @@ package com.fedex.spark.edip.inventory
 
 import com.fedex.spark.edip.inventory.model.InventoryItem
 import com.fedex.spark.edip.inventory.model.InventoryItemId
-import com.fedex.spark.edip.inventory.model.InventoryItemRest
 import com.fedex.spark.edip.inventory.model.InventoryLevel
 import com.fedex.spark.edip.inventory.model.InventoryLevelId
 import com.fedex.spark.edip.inventory.model.Money
