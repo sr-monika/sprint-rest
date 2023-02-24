@@ -1,12 +1,8 @@
 GET http://localhost:8080/
 
+### swagger
+GET http://127.0.0.1:8080/swagger-ui/index.html
 ###
-GET http://localhost:8080/swagger-ui.html
-
-###
-
-GET http://localhost:8080/v3/swagger-ui.html
-
-###
-
 GET http://localhost:8080/v3/api-docs
+###
+GET http://localhost:8080/v3/api-docs.yaml
