@@ -7,7 +7,9 @@ import com.fedex.spark.edip.inventory.model.InventoryLevelId
 import com.fedex.spark.edip.inventory.model.Money
 import com.fedex.spark.edip.inventory.model.Quantity
 import com.fedex.spark.edip.inventory.model.Sku
+import io.swagger.v3.oas.annotations.Operation
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
 
 val item = InventoryItem(
@@ -20,6 +22,7 @@ val itemLevel = InventoryLevel(
 
 @RestController
 class InventoryController {
-    @GetMapping("/itemlevel")
-    fun home() = itemLevel.toRest()
+    @GetMapping("/itemlevel/{levelId}")
+    @Operation(description = "Retrieve item level for given id")
+    fun getItemLevel(@PathVariable levelId: Int) = itemLevel.copy(id = InventoryLevelId(levelId)).toRest()
 }
