@@ -25,8 +25,6 @@ fun seedData() {
 }
 
 
-fun getItemLevel(id: InventoryLevelId) = itemLevels[id]
-
 fun findLevelBySkuLocation(sku: Sku, locationId: Int): InventoryLevelData? =
     itemLevels.filter { it.value.location_id == locationId && it.value.inventory_item.sku == sku }
         .firstNotNullOfOrNull { it.value }
