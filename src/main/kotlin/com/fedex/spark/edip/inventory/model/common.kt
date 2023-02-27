@@ -1,12 +1,9 @@
 package com.fedex.spark.edip.inventory.model
 
-import org.springframework.beans.factory.annotation.Value
-import javax.validation.constraints.Size
+data class Money(override val value: Int) : IntValue
 
-data class Money(val value: Int);
+data class UtcTimestamp(override val value: Long) : LongValue
 
-data class UtcTimestamp(val utc: Long)
+data class Sku(override val value: String) : StringValue
 
-data class Sku(val value: String)
-
-data class Quantity(val value: Int)
+data class Quantity(override val value: Int) : IntValue
