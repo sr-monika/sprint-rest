@@ -28,5 +28,6 @@ class OpenApiConfiguration {
 class EdipInventoryApplication
 
 fun main(args: Array<String>) {
+	seedData()
 	runApplication<EdipInventoryApplication>(*args)
 }
