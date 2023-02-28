@@ -1,3 +1,41 @@
-GET http://localhost:8080/itemlevel/11111
+POST http://localhost:8080/inventoryLevel/set
+Content-Type: application/json
+
+{
+  "effectiveTs": 0,
+  "inventory_item": {
+    "cost": 0,
+    "sku": "UGS-BLK-42"
+  },
+  "quantity": 0,
+  "location_id": 0
+}
 
 ###
+
+POST http://localhost:8080/inventoryLevel/adjust
+Content-Type: application/json
+
+{
+  "effectiveTs": 0,
+  "inventory_item": {
+    "cost": 0.33,
+    "sku": "UGS-BLK-42"
+  },
+  "quantity": 0,
+  "location_id": 0
+}
+
+###
+POST http://localhost:8080/inventoryLevel/sendError
+Content-Type: application/json
+
+{
+  "effectiveTs": 0,
+  "inventory_item": {
+    "cost": 0.33,
+    "sku": "UGS-BLK-42"
+  },
+  "quantity": 0,
+  "location_id": 0
+}

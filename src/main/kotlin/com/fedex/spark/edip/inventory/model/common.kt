@@ -1,12 +1,34 @@
 package com.fedex.spark.edip.inventory.model
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+data class Money(val value: Int) {
+    companion object {
+        fun create(value: Double) = Result.success(Money((value * 100).toInt()))
+    }
+}
 
-@JsonDeserialize(using = MoneyDeserializer::class)
-data class Money(override val value: Int) : IntValue
+data class UtcTimestamp(val value: Long) {
+    companion object {
+        fun create(value: Long) =
+            if (value >= 0)
+                Result.success(UtcTimestamp(value))
+            else
+                Result.failure(javax.validation.ValidationException("Invalid UtcTimestamp $value"))
+    }
+}
 
-data class UtcTimestamp(override val value: Long) : LongValue
+data class Sku(val value: String) {
+    companion object {
+        fun create(value: String) =
+            if (!value.isBlank())
+                Result.success(Sku(value))
+            else
+                Result.failure(javax.validation.ValidationException("Sku may not be empty"))
+    }
+}
 
-data class Sku(override val value: String) : StringValue
 
-data class Quantity(override val value: Int) : IntValue
+data class Quantity(val value: Int) {
+    companion object {
+        fun create(value: Int) = Result.success(Quantity(value))
+    }
+}
