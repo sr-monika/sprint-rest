@@ -4,7 +4,7 @@ import com.fedex.spark.edip.inventory.model.InventoryLevelMessage
 import mu.KotlinLogging
 
 
-object InventoryService {
+object InventoryLevelService {
 
     private val logger = KotlinLogging.logger {}
 

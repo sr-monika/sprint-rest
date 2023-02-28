@@ -1,21 +1,19 @@
 package com.fedex.spark.edip.inventory.model
 
-data class InventoryLevelId(val id: Int)
-
 data class InventoryLevelPayload(
     val effectiveTs : Long,
-    val inventory_item: InventoryItemPayload,
+    val inventoryItem: InventoryItemPayload,
     val quantity: Int,
-    val location_id: Int
+    val locationId: Int
 )
 enum class SetOrAdjust {
     SET, ADJUST
 }
 
 data class InventoryLevelMessage(
-    val inventory_item: InventoryItem,
+    val inventoryItem: InventoryItem,
     val available: Quantity,
-    val location_id: Int,
+    val locationId: Int,
     val action: SetOrAdjust,
     val effectiveTs: UtcTimestamp,
 ) {
@@ -24,9 +22,9 @@ data class InventoryLevelMessage(
             return try {
                 Result.success(
                     InventoryLevelMessage(
-                        inventory_item = InventoryItem.create(level.inventory_item).getOrThrow(),
+                        inventoryItem = InventoryItem.create(level.inventoryItem).getOrThrow(),
                         available = Quantity.create(level.quantity).getOrThrow(),
-                        location_id = level.location_id,
+                        locationId = level.locationId,
                         action = doAction,
                         effectiveTs = UtcTimestamp.create(level.effectiveTs).getOrThrow())
                 )

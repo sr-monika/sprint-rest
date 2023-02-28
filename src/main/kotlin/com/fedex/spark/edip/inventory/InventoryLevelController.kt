@@ -1,7 +1,7 @@
 package com.fedex.spark.edip.inventory
 
-import com.fedex.spark.edip.inventory.InventoryService.send
-import com.fedex.spark.edip.inventory.InventoryService.sendFailure
+import com.fedex.spark.edip.inventory.InventoryLevelService.send
+import com.fedex.spark.edip.inventory.InventoryLevelService.sendFailure
 import com.fedex.spark.edip.inventory.model.InventoryLevelMessage
 import com.fedex.spark.edip.inventory.model.InventoryLevelPayload
 import com.fedex.spark.edip.inventory.model.SetOrAdjust
@@ -17,7 +17,7 @@ import org.springframework.web.server.ResponseStatusException
 import arrow.core.flatMap
 
 @RestController
-class InventoryController : BaseController {
+class InventoryLevelController : BaseController {
     private val logger = KotlinLogging.logger {}
 
     @PostMapping("/inventoryLevel/set")

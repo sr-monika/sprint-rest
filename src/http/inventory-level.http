@@ -3,12 +3,12 @@ Content-Type: application/json
 
 {
   "effectiveTs": 0,
-  "inventory_item": {
-    "cost": 0,
+  "inventoryItem": {
+    "cost": 10.00,
     "sku": "UGS-BLK-42"
   },
-  "quantity": 0,
-  "location_id": 0
+  "quantity": 50,
+  "locationId": 0
 }
 
 ###
@@ -18,12 +18,12 @@ Content-Type: application/json
 
 {
   "effectiveTs": 0,
-  "inventory_item": {
-    "cost": 0.33,
+  "inventoryItem": {
+    "cost": 12.33,
     "sku": "UGS-BLK-42"
   },
-  "quantity": 0,
-  "location_id": 0
+  "quantity": 200,
+  "locationId": 0
 }
 
 ###
@@ -32,10 +32,10 @@ Content-Type: application/json
 
 {
   "effectiveTs": 0,
-  "inventory_item": {
-    "cost": 0.33,
+  "inventoryItem": {
+    "cost": 11.33,
     "sku": "UGS-BLK-42"
   },
-  "quantity": 0,
-  "location_id": 0
+  "quantity": 123,
+  "locationId": 45
 }
