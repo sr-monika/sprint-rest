@@ -12,6 +12,7 @@ import com.fedex.spark.edip.inventory.nowTs
 import com.fedex.spark.edip.inventory.service.InventoryLevelMessageSender
 import com.fedex.spark.edip.inventory.service.SomeOtherService
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -42,7 +43,7 @@ class InventoryLevelController {
         request: InventoryLevelPayload,
         action: SetOrAdjust
     ): ResponseEntity<InventoryLevelResult> {
-        val data = InventoryLevelPayload.createModel(request, action)
+        val data = InventoryLevelPayload.createModel(nowTs() /* should take from header */, request, action)
         data.onSuccess {
             InventoryLevelMessageSender.inform(it)
             someOtherService.inform(it)
@@ -64,13 +65,14 @@ class InventoryLevelController {
 
 
 data class InventoryLevelPayload(
+    @Schema(description = "utc timestamp")
     val effectiveTs: Long?,
     val inventoryItem: InventoryItemPayload,
     val quantity: Int,
     val locationId: Int
 ) {
     companion object {
-        fun createModel(level: InventoryLevelPayload, doAction: SetOrAdjust): Result<InventoryLevel> {
+        fun createModel(timeStamp: Long, level: InventoryLevelPayload, doAction: SetOrAdjust): Result<InventoryLevel> {
             return try {
                 Result.success(
                     InventoryLevel(
@@ -78,7 +80,7 @@ data class InventoryLevelPayload(
                         available = Quantity.create(level.quantity).getOrThrow(),
                         locationId = level.locationId,
                         action = doAction,
-                        effectiveTs = UtcTimestamp.create(level.effectiveTs ?: nowTs()).getOrThrow()
+                        effectiveTs = UtcTimestamp.create(level.effectiveTs ?: timeStamp).getOrThrow()
                     )
                 )
             } catch (e: Exception) {
@@ -90,7 +92,9 @@ data class InventoryLevelPayload(
 
 
 data class InventoryItemPayload(
+    @Schema(description = "the cost of one item")
     val cost: Double,
+    @Schema(description = "the item's sku - may not be an empty string")
     val sku: String
 ) {
     companion object {
@@ -106,6 +110,7 @@ data class InventoryItemPayload(
 
 
 data class InventoryLevelResult(
+    @Schema(description = "utc timestamp - denotes the triggering event's time stamp")
     val effectiveTs: Long?,
     val sku: String,
     val locationId: Int,
