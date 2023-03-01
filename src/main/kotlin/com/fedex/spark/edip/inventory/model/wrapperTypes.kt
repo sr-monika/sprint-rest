@@ -4,13 +4,16 @@ enum class SetOrAdjust {
     SET, ADJUST, FAILURE
 }
 
-data class Money(val value: Int) {
+class Money private constructor(set: Int) {
+    val value: Int = set
+
     companion object {
         fun create(value: Double) = Result.success(Money((value * 100).toInt()))
     }
 }
 
-data class UtcTimestamp(val value: Long) {
+class UtcTimestamp private constructor(set: Long) {
+    val value: Long = set
     companion object {
         fun create(value: Long) =
             if (value >= 0)
@@ -20,7 +23,10 @@ data class UtcTimestamp(val value: Long) {
     }
 }
 
-data class Sku(val value: String) {
+
+class Sku private constructor(set: String) {
+    val value = set
+
     companion object {
         fun create(value: String) =
             if (!value.isBlank())
@@ -31,7 +37,8 @@ data class Sku(val value: String) {
 }
 
 
-data class Quantity(val value: Int) {
+class Quantity private constructor(set: Int) {
+    val value: Int = set
     companion object {
         fun create(value: Int) = Result.success(Quantity(value))
     }
