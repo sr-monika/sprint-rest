@@ -1,5 +1,9 @@
 package com.fedex.spark.edip.inventory.model
 
+enum class SetOrAdjust {
+    SET, ADJUST, FAILURE
+}
+
 data class Money(val value: Int) {
     companion object {
         fun create(value: Double) = Result.success(Money((value * 100).toInt()))

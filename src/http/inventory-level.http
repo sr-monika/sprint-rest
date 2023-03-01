@@ -2,7 +2,7 @@ POST http://localhost:8080/inventoryLevel/set
 Content-Type: application/json
 
 {
-  "effectiveTs": -1,
+  "effectiveTs": 90,
   "inventoryItem": {
     "cost": 10.00,
     "sku": "UGS-BLK-42"
@@ -27,7 +27,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:8080/inventoryLevel/sendError
+POST http://localhost:8080/inventoryLevel/failure
 Content-Type: application/json
 
 {
