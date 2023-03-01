@@ -17,7 +17,7 @@ import org.springframework.web.server.ResponseStatusException
 import arrow.core.flatMap
 
 @RestController
-class InventoryLevelController : BaseController {
+class InventoryLevelController  {
     private val logger = KotlinLogging.logger {}
 
     @PostMapping("/inventoryLevel/set")
@@ -26,7 +26,7 @@ class InventoryLevelController : BaseController {
         val result =
             InventoryLevelMessage.create(request, SetOrAdjust.SET).flatMap(
                 { send(it).flatMap { Result.success(request) }}  )
-        return super.returnResult(logger, result)
+        return returnResult(logger, result)
     }
 
     @PostMapping("/inventoryLevel/adjust")
@@ -36,7 +36,7 @@ class InventoryLevelController : BaseController {
             InventoryLevelMessage.create(request, SetOrAdjust.ADJUST).flatMap(
                 { send(it).flatMap { Result.success(request) }}
             )
-        return super.returnResult(logger, result)
+        return returnResult(logger, result)
     }
 
     @PostMapping("/inventoryLevel/sendError")
@@ -46,11 +46,8 @@ class InventoryLevelController : BaseController {
             InventoryLevelMessage.create(request, SetOrAdjust.SET).flatMap(
                 { sendFailure(it).flatMap { Result.success(request) }}
             )
-        return super.returnResult(logger, result)
+        return returnResult(logger, result)
     }
-}
-
-interface BaseController {
 
     fun <T> returnResult(logger: KLogger, result: Result<T>): ResponseEntity<T> {
         if (result.isFailure) {
