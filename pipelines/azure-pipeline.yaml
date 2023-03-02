@@ -1,0 +1,92 @@
+name: $(SourceBranchName)-$(Date:yyyyMMdd)-$(Rev:rrr)
+trigger: none
+variables:
+  - name: releaseName
+    value: 'inventory-service'
+
+  - name: nexusIQAppId
+    value: '' # TO DO
+
+  - name: dockerRegistryUrl
+    value: 'fedex.azurecr.io'
+
+  - name: namespace-dev
+    value: 'inventory-dev'
+
+  - name: namespace-test
+    value: 'inventory-test'
+
+  - name: namespace-stage
+    value: 'inventory-stage'
+
+  - name: namespace-prod
+    value: 'inventory'
+
+  - name: helmArtifactName
+    value: 'inventory-helm'
+
+  - name: fortifyServiceConnectionName
+    value: 'fedex-fortify-ssc'
+
+  - name: FortifyAppName
+    value: ''  # TO DO
+
+  - name: mavenPool
+    value: 'maven-ops-build'
+
+  - name: kubernetesServiceConnectionNonProdDev
+    value: 'main-inventory-dev'
+
+  - name: kubernetesServiceConnectionProdStage
+    value: 'main-inventory-stage'
+
+  - name: kubernetesServiceConnectionProd
+    value: 'main-inventory'
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: common/azure-pipeline-templates
+      ref: master
+
+stages:
+  - stage: publishCharts
+    displayName: 'publish helm charts'
+    jobs:
+      - job: publishCharts
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish helm chart files'
+            inputs:
+              targetPath: '$(System.DefaultWorkingDirectory)/chart'
+              artifact: '$(helmArtifactName)'
+
+  - template: microservice/gated_build.yml@templates
+    parameters:
+      dockerFilePath: 'Dockerfile'
+      acrServiceConnection: 'fedex-acr'
+      acrRepo: $(releaseName)
+      mavenArtifactName: 'target'
+      pomFilePath: '$(System.DefaultWorkingDirectory)/pom.xml'
+      agentPool: $(mavenPool)
+      appDirectory: '.'
+      nexusIQAppId: $(nexusIQAppId)
+      pushImage: true
+      nexusIQscan: false #Make it true once NexusIQAppId available
+
+
+  - stage: DeployDev
+    displayName: Deploy to Dev environment
+    dependsOn: ['dockerbuild']
+    jobs:
+      - template: ./templates/deploy.yml
+        parameters:
+          mavenPool: $(mavenPool)
+          pipelineEnvironment: "DEV-App"
+          helmArtifactName: $(helmArtifactName)
+          kubernetesServiceConnection: $(kubernetesServiceConnectionNonProdDev)
+          namespace: $(namespace-dev)
+          releaseName: $(releaseName)
+          dockerRegistryUrl: $(dockerRegistryUrl)
+          environment: "dev"
