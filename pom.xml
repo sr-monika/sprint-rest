@@ -14,7 +14,7 @@
     <name>spark edit inventory</name>
     <description>sparc inventory api, related service</description>
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <kotlin.version>1.7.21</kotlin.version>
         <kotlin.compiler.languageVersion>1.5</kotlin.compiler.languageVersion>
         <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
