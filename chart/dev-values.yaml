@@ -1,0 +1,38 @@
+projectName: 'inventory-service'
+environment: dev
+javaOpts: '-Xmx1024m -XX:+PrintFlagsFinal -javaagent:/var/app/applicationinsights-agent-3.4.9.jar'
+APPLICATIONINSIGHTS_CONNECTION_STRING: InstrumentationKey=58f6f1d6-7be9-4308-9b00-6bdd96d37f07;IngestionEndpoint=https://eastus2-0.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus2.livediagnostics.monitor.azure.com/
+host: localhost
+app:
+  name: inventory
+  vault:
+    name: inventory-dev
+    suffix: kv
+  feature:
+    instrumentation: true
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+deployment:
+  container:
+    port: 8080
+  resources:
+    limits:
+      cpu: 100m
+      memory: 2Gi
+      ephemeral-storage: 2Gi
+    requests:
+      cpu: 10m
+      memory: 20Mi
+      ephemeral-storage: 1Gi
+  image:
+    name: inventory-service:latest
+    pullPolicy: Always
+    pullSecrets:
+      name: docker-registry
+  versionTag: latest
+  replicas: 1
+  terminationGracePeriodSeconds: 1200
+ingress:
+  endpoint: inventory
