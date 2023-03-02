@@ -68,7 +68,7 @@ stages:
               targetPath: '$(System.DefaultWorkingDirectory)/chart'
               artifact: '$(helmArtifactName)'
 
-  - template: ../build_template/stage_java_build.yaml
+  - template: ../build_template/java_build.yaml
     parameters:
       mavenArtifactName: 'target'
       pomFilePath: '$(System.DefaultWorkingDirectory)/pom.xml'
