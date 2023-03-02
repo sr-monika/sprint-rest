@@ -68,14 +68,14 @@ stages:
               targetPath: '$(System.DefaultWorkingDirectory)/chart'
               artifact: '$(helmArtifactName)'
 
- # - template: ../build_template/java_build.yaml
- #   parameters:
- #     mavenArtifactName: 'target'
- #     pomFilePath: '$(System.DefaultWorkingDirectory)/pom.xml'
- #     pool: $(mavenPool)
- #     appDirectory: '.'
- #     nexusIQAppId: $(nexusIQAppId)
- #     nexusIQscan: false #Make it true once NexusIQAppId available
+  - template: ../build_template/java_build.yaml
+    parameters:
+      mavenArtifactName: 'target'
+      pomFilePath: '$(System.DefaultWorkingDirectory)/pom.xml'
+      pool: $(mavenPool)
+      appDirectory: '.'
+      nexusIQAppId: $(nexusIQAppId)
+      nexusIQscan: false #Make it true once NexusIQAppId available
 
   #- stage: fortifyScan
   #  displayName: "Run Fortify Scan and Publish Results"
