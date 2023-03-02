@@ -1,0 +1,71 @@
+parameters:
+  - name: mavenPool
+    type: string
+
+  - name: pipelineEnvironment
+    type: string
+
+  - name: helmArtifactName
+    type: string
+
+  - name: kubernetesServiceConnection
+    type: string
+
+  - name: namespace
+    type: string
+
+  - name: releaseName
+    type: string
+
+  - name: dockerRegistryUrl
+    type: string
+
+  - name: environment
+    type: string
+
+  - name: additionalOverrideValues
+    type: string
+    default: ''
+
+jobs:
+  - deployment: Deploy
+    displayName: Deploy Job
+    pool: ${{ parameters.mavenPool }}
+    environment: ${{ parameters.pipelineEnvironment }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - download: none
+
+            - task: DownloadPipelineArtifact@2
+              inputs:
+                artifactName: ${{ parameters.helmArtifactName }}
+                downloadPath: '$(System.ArtifactsDirectory)/${{ parameters.helmArtifactName }}'
+
+            - task: HelmInstaller@1
+              displayName: 'Install Helm 3.10.2'
+              inputs:
+                helmVersionToInstall: '3.10.2'
+
+            - task: KubectlInstaller@0
+              displayName: 'Install latest kubectl'
+              inputs:
+                kubectlVersion: 'latest'
+
+            - task: HelmDeploy@0
+              displayName: Deploy
+              inputs:
+                connectionType: 'Kubernetes Service Connection'
+                kubernetesServiceConnection: ${{ parameters.kubernetesServiceConnection }}
+                namespace: ${{ parameters.namespace }}
+                command: 'upgrade'
+                chartType: 'FilePath'
+                chartPath: '$(System.ArtifactsDirectory)/${{ parameters.helmArtifactName }}'
+                releaseName: '${{ parameters.releaseName }}'
+                install: true
+                waitForExecution: false
+                valueFile: '$(System.ArtifactsDirectory)/${{ parameters.helmArtifactName }}/${{ parameters.environment }}-values.yaml'
+                overrideValues: |
+                  deployment.image.name="${{ parameters.dockerRegistryUrl }}/${{ parameters.releaseName }}:$(Build.BuildId)"
+                  ${{ parameters.additionalOverrideValues }}
