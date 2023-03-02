@@ -1,0 +1,77 @@
+parameters:
+  - name: pool
+    type: string
+
+  - name: environment
+    type: string
+    default: dockerdev
+
+  - name: mavenArtifactName
+    type: string
+
+  - name: acrServiceConnection
+    type: string
+
+  - name: acrAgentPoolName
+    type: string
+    default: fxsopsagentpool
+
+  - name: dockerFilePath
+    type: string
+
+  - name: acrRepo
+    type: string
+
+  - name: pushImage
+    type: boolean
+    default: true
+
+  - name: repoName
+    type: string
+    default: self
+
+  - name: appDirectory
+    type: string
+
+  - name: buildArguments
+    type: string
+    default: ADO_BUILD=true
+
+  - name: tags
+    type: object
+    default: []
+
+jobs:
+  - deployment: dockerbuild
+    environment: ${{ parameters.environment }}
+    pool: ${{ parameters.pool }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: ${{ parameters.repoName }}
+
+            - task: DownloadPipelineArtifact@2
+              inputs:
+                source: current
+                artifact: ${{ parameters.mavenArtifactName }}
+                path: $(Build.SourcesDirectory)/${{ parameters.appDirectory }}/target/
+
+            - task: AzureCLI@2
+              displayName: Build docker container with ACR
+              inputs:
+                azureSubscription: fxs-ops
+                scriptType: bash
+                scriptLocation: inlineScript
+                inlineScript: |
+                  JAR_FILE=$(ls target/*.jar)
+                  allTags="$(Build.BuildId) $(Build.SourceVersion) latest-$(Build.BuildNumber) ${{ join(' ',parameters.tags) }}"
+                  az acr build \
+                  --registry fedex \
+                  --agent-pool ${{ parameters.acrAgentPoolName }} \
+                  $(
+                    for tag in $allTags; do
+                      printf -- '-t ${{ parameters.acrRepo }}:%s ' "${tag}"
+                    done
+                  ) \
+                   ${{ parameters.appDirectory }}
