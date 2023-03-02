@@ -95,7 +95,7 @@ stages:
     displayName: 'Docker build'
     condition: succeeded()
     jobs:
-      - template: ../build_template/docker_build.yml
+      - template: ../build_template/docker_build.yaml
         parameters:
           dockerFilePath: '$(System.DefaultWorkingDirectory)/Dockerfile'
           acrServiceConnection: 'fedex-acr'
