@@ -68,6 +68,7 @@ data class InventoryLevelPayload(
     @Schema(description = "utc timestamp")
     val effectiveTs: Long?,
     val inventoryItem: InventoryItemPayload,
+    @Schema(description = "quantity of items. negative number means removing from the inventory", example = "50")
     val quantity: Int,
     val locationId: Int
 ) {
@@ -94,7 +95,7 @@ data class InventoryLevelPayload(
 data class InventoryItemPayload(
     @Schema(description = "the cost of one item")
     val cost: Double,
-    @Schema(description = "the item's sku - may not be an empty string")
+    @Schema(description = "the item's sku - may not be an empty string", example = "UGS-BLK-10")
     val sku: String
 ) {
     companion object {
@@ -117,10 +118,10 @@ data class InventoryLevelResult(
 ) {
     companion object {
         fun create(level: InventoryLevel) =
-                InventoryLevelResult(
-                    effectiveTs = level.effectiveTs.value,
-                    sku = level.inventoryItem.sku.value,
-                    locationId = level.locationId
-                )
+            InventoryLevelResult(
+                effectiveTs = level.effectiveTs.value,
+                sku = level.inventoryItem.sku.value,
+                locationId = level.locationId
+            )
     }
 }
