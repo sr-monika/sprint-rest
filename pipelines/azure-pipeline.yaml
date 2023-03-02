@@ -80,7 +80,7 @@ stages:
     displayName: Deploy to Dev environment
     dependsOn: ['dockerbuild']
     jobs:
-      - template: ./templates/deploy.yml
+      - template: ../templates/deploy.yaml
         parameters:
           mavenPool: $(mavenPool)
           pipelineEnvironment: "DEV-App"
