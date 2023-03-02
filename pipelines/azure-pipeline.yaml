@@ -35,7 +35,7 @@ variables:
     value: 'maven-ops-build'
 
   - name: kubernetesServiceConnectionNonProdDev
-    value: 'eastus2-dwx-edip-np-main'
+    value: 'main-inventory-dev'
 
   - name: kubernetesServiceConnectionProdStage
     value: 'main-inventory-stage'
