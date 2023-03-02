@@ -1,0 +1,30 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ .Values.app.name }}
+spec:
+  # strip off the environment reference within the request URL:
+  stripPrefix:
+    prefixes:
+      - /{{ .Values.environment}}
+
+
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Values.app.name }}
+spec:
+  routes:
+    - kind: Rule
+      match: PathPrefix(`/{{ .Values.environment}}/{{.Values.ingress.endpoint }}`)
+      middlewares:
+        - name: {{ .Values.app.name }}
+          namespace: {{ .Values.namespace }}
+      services:
+        - kind: Service
+          name: {{ .Values.app.name }}
+          namespace: {{ .Values.namespace }}
+          passHostHeader: true
+          port: 8080

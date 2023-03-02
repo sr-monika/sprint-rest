@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.app.name }}
+  labels:
+    azure.workload.identity/use: "true"
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.app.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app.name }}
+        azure.workload.identity/use: "true"
+    spec:
+      serviceAccountName: {{ .Values.app.vault.name }}
+      imagePullSecrets:
+        - name: {{ .Values.deployment.image.pullSecrets.name }}
+      containers:
+        - name: {{ .Values.app.name }}
+          image: {{ .Values.deployment.image.name }}
+          env:
+            - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+              value: {{ .Values.APPLICATIONINSIGHTS_CONNECTION_STRING }}
+            - name: SPRING_PROFILES_ACTIVE
+              value: {{ .Values.environment }}
+            - name: JAVA_OPTS
+              value: {{  .Values.javaOpts }}
+            - name: edip.producer.host-name
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.app.name }}
+                  key: eventhub-hostname
+            - name: edip.producer.event-hub-name
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.app.name }}
+                  key: outgoing-eventhub-name
+          imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.deployment.container.port }}
+          resources: {{ index .Values "deployment" "resources" | toYaml | nindent 12 }}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sh", "-c", "sleep 10"]
+          volumeMounts:
+            - name: secrets-store-inline
+              mountPath: "/mnt/secrets-store"
+              readOnly: true
+      terminationGracePeriodSeconds: {{ .Values.deployment.terminationGracePeriodSeconds }}
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ .Values.app.vault.name }}-{{ .Values.app.vault.suffix }}
+
