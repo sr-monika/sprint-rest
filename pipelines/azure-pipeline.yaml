@@ -68,7 +68,7 @@ stages:
               targetPath: '$(System.DefaultWorkingDirectory)/chart'
               artifact: '$(helmArtifactName)'
 
-  - template: ../build_template/stage_java_build.yml
+  - template: ../build_template/stage_java_build.yaml
     parameters:
       mavenArtifactName: 'target'
       pomFilePath: '$(System.DefaultWorkingDirectory)/pom.xml'
@@ -110,7 +110,7 @@ stages:
     displayName: Deploy to Dev environment
     dependsOn: ['dockerbuild']
     jobs:
-      - template: ../templates/deploy.yml
+      - template: ../templates/deploy.yaml
         parameters:
           mavenPool: $(mavenPool)
           pipelineEnvironment: "Test-App"

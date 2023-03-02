@@ -1,0 +1,133 @@
+
+parameters:
+  - name: pool
+    type: string
+
+  - name: pomFilePath
+    type: string
+
+  - name: mavenArtifactName
+    type: string
+
+  - name: debug
+    type: boolean
+    default: false
+
+  - name: appDirectory
+    type: string
+
+  - name: repoName
+    type: string
+    default: self
+
+  - name: publishMavenArtifactTargetPath
+    type: string
+    default: ''
+
+  - name: codeCoverageClassFilesDirectories
+    type: string
+    default: ''
+
+  - name: codeCoverageSourceDirectories
+    type: string
+    default: ''
+
+  - name: codeCoverageClassFilter
+    type: string
+    default: ''
+
+  - name: mavenauthenticate
+    type: boolean
+    default: false
+
+  - name: nexusIQscan
+    type: boolean
+
+  - name: nexusIQAppId
+    type: string
+    default: '3538632_registration-service'
+
+  - name: nexusIQInstance
+    type: string
+    default: 'NexusIQ Prod instance'
+
+stages:
+  - stage: javabuild
+    displayName: 'Java Build & Test'
+    jobs:
+      - job: build
+        pool: ${{ parameters.pool }}
+        variables:
+          defaultPublishMavenArtifactTargetPath: '$(System.DefaultWorkingDirectory)/${{ parameters.appDirectory }}/edip-api/target'
+        steps:
+          - checkout: ${{ parameters.repoName }}
+          - script: |
+              if [[ ${{ parameters.appDirectory }} -eq 'RatingService' || ${{ parameters.appDirectory }} -eq 'cshpwrapper-service' ]]
+              then
+                echo '##vso[task.setvariable variable=COM_FEDEX_FRAMEWORK_SECURITY_CLIENT_CREDENTIALS_PEM]$(COM-FEDEX-FRAMEWORK-SECURITY-CLIENT-CREDENTIALS-PEM)'
+                echo '##vso[task.setvariable variable=COM_FEDEX_FRAMEWORK_SECURITY_CLIENT_CREDENTIALS_PASSWORD]$(COM-FEDEX-FRAMEWORK-SECURITY-CLIENT-CREDENTIALS-PASSWORD)'
+              fi
+
+          - task: MavenAuthenticate@0
+            inputs:
+              artifactsFeeds: 'RetIntSDK'
+              mavenServiceConnections: 'RetIntSDK'
+
+          - task: UseDotNet@2
+            displayName: Install Report Generator Dependency
+            inputs:
+              packageType: 'sdk'
+              version: '3.1.202'
+          - task: Bash@3
+            displayName: Run Code Coverage
+            inputs:
+              targetType: 'inline'
+              script: |
+                dotnet tool install -g dotnet-reportgenerator-globaltool
+                reportgenerator -reports:$(System.DefaultWorkingDirectory)/${{ parameters.appDirectory }}/CCReport43F6D5EF/jacoco.xml -targetdir:$(System.DefaultWorkingDirectory)/${{ parameters.appDirectory }}/ccreport  -reporttypes:HtmlInline -sourcedirs: $(System.DefaultWorkingDirectory)/${{ parameters.appDirectory }}/src/main/java/
+                ls
+
+          - task: PublishCodeCoverageResults@1
+            inputs:
+              codeCoverageTool: 'JaCoCo'
+              summaryFileLocation: '$(System.DefaultWorkingDirectory)/${{ parameters.appDirectory }}/CCReport43F6D5EF/jacoco.xml'
+              reportDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.appDirectory }}/ccreport'
+              ${{ if eq(parameters.codeCoverageClassFilesDirectories, '') }}:
+                pathToSources: '$(System.DefaultWorkingDirectory)/${{ parameters.appDirectory }}/src/main/kotlin/'
+
+          - task: Maven@3
+            env:
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+              JAVA_HOME_17_X64: /usr/lib/jvm/java-17-openjdk-amd64
+            condition: or( succeeded(),  eq(${{ parameters.debug }},true))
+            displayName: 'Package'
+            inputs:
+              mavenPomFile: ${{ parameters.pomFilePath }}
+              options: '-DskipTests'
+              publishJUnitResults: false
+              javaHomeOption: 'JDKVersion'
+              jdkVersionOption: '1.17'
+              ${{ if eq(parameters.mavenauthenticate, true) }}:
+                goals: 'deploy'
+              mavenVersionOption: 'Default'
+              mavenAuthenticateFeed: ${{ parameters.mavenauthenticate }}
+              effectivePomSkip: false
+              sonarQubeRunAnalysis: false
+
+          - task: NexusIqPipelineTask@1
+            displayName: Run NexusIQ scan
+            condition: and(succeeded(), eq(${{ parameters.nexusIQscan }}, true))
+            inputs:
+              nexusIqService: ${{ parameters.nexusIQInstance }}
+              applicationId: ${{ parameters.nexusIQAppId }}
+              stage: 'Build'
+              ignoreSystemError: true
+
+          - task: PublishPipelineArtifact@1
+            condition: or( succeeded(), eq(${{ parameters.debug }},true))
+            inputs:
+              targetPath: ${{ coalesce(parameters.publishMavenArtifactTargetPath, variables.defaultPublishMavenArtifactTargetPath) }}
+              artifact: ${{ parameters.mavenArtifactName }}
+              publishLocation: 'pipeline'
+
+
