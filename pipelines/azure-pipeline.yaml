@@ -37,11 +37,16 @@ variables:
   - name: kubernetesServiceConnectionNonProdDev
     value: 'main-inventory-dev'
 
+  - name: kubernetesServiceConnectionNonProdTest
+    value: 'main-inventory-test'
+
   - name: kubernetesServiceConnectionProdStage
     value: 'main-inventory-stage'
 
   - name: kubernetesServiceConnectionProd
     value: 'main-inventory'
+
+
 
 resources:
   repositories:
@@ -51,6 +56,7 @@ resources:
       ref: master
 
 stages:
+
   - stage: publishCharts
     displayName: 'publish helm charts'
     jobs:
@@ -62,31 +68,56 @@ stages:
               targetPath: '$(System.DefaultWorkingDirectory)/chart'
               artifact: '$(helmArtifactName)'
 
-  - template: microservice/gated_build.yml@templates
+  - template: ../build_template/stage_java_build.yml
     parameters:
-      dockerFilePath: 'Dockerfile'
-      acrServiceConnection: 'fedex-acr'
-      acrRepo: $(releaseName)
       mavenArtifactName: 'target'
       pomFilePath: '$(System.DefaultWorkingDirectory)/pom.xml'
-      agentPool: $(mavenPool)
+      pool: $(mavenPool)
       appDirectory: '.'
       nexusIQAppId: $(nexusIQAppId)
-      pushImage: true
       nexusIQscan: false #Make it true once NexusIQAppId available
+
+  - stage: fortifyScan
+    displayName: "Run Fortify Scan and Publish Results"
+    jobs:
+      - template: fortify/fortify.yaml@templates
+        parameters:
+          fortifySourceTranslate: ''
+          fortifyBuildId: $(Build.BuildId)
+          buildAgentPoolName: fortify-ops-build
+          fortifyApplicationName: '3539672_order_cleansing'
+          fortifyApplicationVersion: 'dev'
+          fortifyServerName: 'fedex-fortify-ssc'
+          runFortifyScan: true
+
+  - stage: dockerbuild
+    # dependsOn: ['build']
+    displayName: 'Docker build'
+    condition: succeeded()
+    jobs:
+      - template: ../build_template/stage_docker_build.yml
+        parameters:
+          dockerFilePath: '$(System.DefaultWorkingDirectory)/Dockerfile'
+          acrServiceConnection: 'fedex-acr'
+          acrRepo: $(releaseName)
+          mavenArtifactName: 'target'
+          pool: $(mavenPool)
+          appDirectory: '.'
+          pushImage: true
 
 
   - stage: DeployDev
     displayName: Deploy to Dev environment
     dependsOn: ['dockerbuild']
     jobs:
-      - template: ../templates/deploy.yaml
+      - template: ../templates/deploy.yml
         parameters:
           mavenPool: $(mavenPool)
-          pipelineEnvironment: "DEV-App"
+          pipelineEnvironment: "Test-App"
           helmArtifactName: $(helmArtifactName)
           kubernetesServiceConnection: $(kubernetesServiceConnectionNonProdDev)
           namespace: $(namespace-dev)
           releaseName: $(releaseName)
           dockerRegistryUrl: $(dockerRegistryUrl)
           environment: "dev"
+
