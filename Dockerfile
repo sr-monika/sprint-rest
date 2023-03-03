@@ -1,6 +1,12 @@
 FROM openjdk:17-alpine
 
+RUN pwd
+RUN ls
+
 WORKDIR /var/app/
+
+RUN pwd
+RUN ls
 
 COPY run-service.sh target/edip-inventory-0.0.1-SNAPSHOT.jar /var/app/
 
