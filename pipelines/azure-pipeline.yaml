@@ -113,7 +113,7 @@ stages:
       - template: ../templates/deploy.yaml
         parameters:
           mavenPool: $(mavenPool)
-          pipelineEnvironment: "DEV-App"
+          pipelineEnvironment: "dockerdev"
           helmArtifactName: $(helmArtifactName)
           kubernetesServiceConnection: $(kubernetesServiceConnectionNonProdDev)
           namespace: $(namespace-dev)
