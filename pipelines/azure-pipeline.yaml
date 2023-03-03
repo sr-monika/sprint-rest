@@ -11,7 +11,7 @@ variables:
     value: 'fedex.azurecr.io'
 
   - name: namespace-dev
-    value: 'inventory-dev'
+    value: 'inventory-service-dev'
 
   - name: namespace-test
     value: 'inventory-test'
