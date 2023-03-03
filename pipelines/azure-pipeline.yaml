@@ -77,18 +77,18 @@ stages:
       nexusIQAppId: $(nexusIQAppId)
       nexusIQscan: false #Make it true once NexusIQAppId available
 
-  #- stage: fortifyScan
-  #  displayName: "Run Fortify Scan and Publish Results"
-  #  jobs:
-  #    - template: fortify/fortify.yaml@templates
-  #      parameters:
-  #        fortifySourceTranslate: ''
-  #        fortifyBuildId: $(Build.BuildId)
-  #        buildAgentPoolName: fortify-ops-build
-  #        fortifyApplicationName: '3539672_order_cleansing'
-  #        fortifyApplicationVersion: 'dev'
-  #        fortifyServerName: 'fedex-fortify-ssc'
-  #        runFortifyScan: true
+  - stage: fortifyScan
+    displayName: "Run Fortify Scan and Publish Results"
+    jobs:
+      - template: fortify/fortify.yaml@templates
+        parameters:
+          fortifySourceTranslate: ''
+          fortifyBuildId: $(Build.BuildId)
+          buildAgentPoolName: fortify-ops-build
+          fortifyApplicationName: '3539672_order_cleansing'
+          fortifyApplicationVersion: 'dev'
+          fortifyServerName: 'fedex-fortify-ssc'
+          runFortifyScan: true
 
   #- stage: dockerbuild
     # dependsOn: ['build']
