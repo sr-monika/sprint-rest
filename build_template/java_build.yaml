@@ -58,7 +58,7 @@ stages:
       - job: build
         pool: ${{ parameters.pool }}
         variables:
-          defaultPublishMavenArtifactTargetPath: '$(System.DefaultWorkingDirectory)/${{ parameters.appDirectory }}/src/target'
+          defaultPublishMavenArtifactTargetPath: '$(System.DefaultWorkingDirectory)/${{ parameters.appDirectory }}/target'
         steps:
           - checkout: ${{ parameters.repoName }}
           - script: |
