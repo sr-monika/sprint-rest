@@ -77,33 +77,33 @@ stages:
       nexusIQAppId: $(nexusIQAppId)
       nexusIQscan: false #Make it true once NexusIQAppId available
 
-  - stage: fortifyScan
-    displayName: "Run Fortify Scan and Publish Results"
-    jobs:
-      - template: fortify/fortify.yaml@templates
-        parameters:
-          fortifySourceTranslate: ''
-          fortifyBuildId: $(Build.BuildId)
-          buildAgentPoolName: fortify-ops-build
-          fortifyApplicationName: '3539672_order_cleansing'
-          fortifyApplicationVersion: 'dev'
-          fortifyServerName: 'fedex-fortify-ssc'
-          runFortifyScan: true
+  #- stage: fortifyScan
+  #  displayName: "Run Fortify Scan and Publish Results"
+  #  jobs:
+  #    - template: fortify/fortify.yaml@templates
+  #      parameters:
+  #        fortifySourceTranslate: ''
+  #        fortifyBuildId: $(Build.BuildId)
+  #        buildAgentPoolName: fortify-ops-build
+  #        fortifyApplicationName: '3539672_inventory'
+  #        fortifyApplicationVersion: 'dev'
+  #        fortifyServerName: 'fedex-fortify-ssc'
+  #        runFortifyScan: true
 
-  #- stage: dockerbuild
-    # dependsOn: ['build']
-    #displayName: 'Docker build'
-    #condition: succeeded()
-   # jobs:
-     # - template: ../build_template/docker_build.yaml
-      #  parameters:
-      #    dockerFilePath: '$(System.DefaultWorkingDirectory)/Dockerfile'
-      #    acrServiceConnection: 'fedex-acr'
-      #    acrRepo: $(releaseName)
-      #    mavenArtifactName: 'target'
-      #    pool: $(mavenPool)
-      #    appDirectory: '.'
-      #    pushImage: true
+  - stage: dockerbuild
+    #dependsOn: ['build']
+    displayName: 'Docker build'
+    condition: succeeded()
+    jobs:
+      - template: ../build_template/docker_build.yaml
+        parameters:
+          dockerFilePath: '$(System.DefaultWorkingDirectory)/Dockerfile'
+          acrServiceConnection: 'fedex-acr'
+          acrRepo: $(releaseName)
+          mavenArtifactName: 'target'
+          pool: $(mavenPool)
+          appDirectory: '.'
+          pushImage: true
 
 
   #- stage: DeployDev
