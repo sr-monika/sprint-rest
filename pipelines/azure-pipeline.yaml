@@ -106,18 +106,18 @@ stages:
           pushImage: true
 
 
-  #- stage: DeployDev
-   # displayName: Deploy to Dev environment
-    #dependsOn: ['dockerbuild']
-    #jobs:
-     # - template: ../templates/deploy.yaml
-      #  parameters:
-       #   mavenPool: $(mavenPool)
-        #  pipelineEnvironment: "Test-App"
-         # helmArtifactName: $(helmArtifactName)
-          #kubernetesServiceConnection: $(kubernetesServiceConnectionNonProdDev)
-          #namespace: $(namespace-dev)
-          #releaseName: $(releaseName)
-          #dockerRegistryUrl: $(dockerRegistryUrl)
-          #environment: "dev"
+  - stage: DeployDev
+    displayName: Deploy to Dev environment
+    dependsOn: ['dockerbuild']
+    jobs:
+      - template: ../templates/deploy.yaml
+        parameters:
+          mavenPool: $(mavenPool)
+          pipelineEnvironment: "Test-App"
+          helmArtifactName: $(helmArtifactName)
+          kubernetesServiceConnection: $(kubernetesServiceConnectionNonProdDev)
+          namespace: $(namespace-dev)
+          releaseName: $(releaseName)
+          dockerRegistryUrl: $(dockerRegistryUrl)
+          environment: "dev"
 
