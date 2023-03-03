@@ -1,17 +1,23 @@
-FROM eclipse-temurin:17-jdk-alpine as build
-WORKDIR /workspace/app
+FROM openjdk:17-alpine
 
-USER root
+WORKDIR /var/app/
 
-COPY mvnw .
-COPY .mvn .mvn
-COPY pom.xml .
-COPY src src
+COPY run-service.sh ./target/edip-inventory-0.0.1-SNAPSHOT.jar /var/app/
 
-RUN chmod +x mvnw
-RUN ./mvnw install -DskipTests
-RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
+RUN chmod +x /var/app/run-service.sh
 
-COPY target/edip-inventory-0.0.1-SNAPSHOT.jar app.jar
+RUN apk update \
+&& apk add shadow=4.8.1-r0 \
+&& groupadd order \
+&& useradd -g order order-user \
+&& chown -R order-user:order /var/app/
 
-ENTRYPOINT ["java","-jar","/workspace/app/app.jar"]
+RUN apk --no-cache add curl
+
+USER order-user
+
+ENV JAVA_OPTS=""
+
+EXPOSE 8080
+
+ENTRYPOINT ["/var/app/run-service.sh"]
