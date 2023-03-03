@@ -2,7 +2,7 @@ FROM openjdk:17-alpine
 
 WORKDIR /var/app/
 
-COPY run-service.sh ./target/edip-inventory-0.0.1-SNAPSHOT.jar /var/app/
+COPY run-service.sh target/edip-inventory-0.0.1-SNAPSHOT.jar /var/app/
 
 RUN chmod +x /var/app/run-service.sh
 
