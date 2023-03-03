@@ -1,14 +1,15 @@
 FROM openjdk:17-alpine
 
+
+
 RUN pwd
 RUN ls
 
 WORKDIR /var/app/
+ARG CACHE_DATE=2022-01-01
+RUN find . -type d -name 'target'
 
-RUN pwd
-RUN ls
-
-COPY run-service.sh target/edip-inventory-0.0.1-SNAPSHOT.jar /var/app/
+COPY run-service.sh ../target/edip-inventory-0.0.1-SNAPSHOT.jar /var/app/
 
 RUN chmod +x /var/app/run-service.sh
 
