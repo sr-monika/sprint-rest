@@ -1,9 +1,7 @@
 package com.fedex.spark.edip.inventory.controller
 
 import arrow.core.flatMap
-import com.fedex.spark.edip.inventory.model.InventoryItem
 import com.fedex.spark.edip.inventory.model.InventoryLevel
-import com.fedex.spark.edip.inventory.model.Money
 import com.fedex.spark.edip.inventory.model.Quantity
 import com.fedex.spark.edip.inventory.model.SetOrAdjust
 import com.fedex.spark.edip.inventory.model.Sku
@@ -66,42 +64,26 @@ class InventoryLevelController {
 
 data class InventoryLevelPayload(
     @Schema(description = "utc timestamp")
-    val effectiveTs: Long?,
-    val inventoryItem: InventoryItemPayload,
+    val inventoryEventTs: Long?,
+    @Schema(description = "the item's sku - may not be an empty string", example = "UGS-BLK-10")
+    val sku: String,
     @Schema(description = "quantity of items. negative number means removing from the inventory", example = "50")
     val quantity: Int,
-    val locationId: Int
+    @Schema(description = "id of a location for the authenticated subOrg/Org", example = "validIdForSubOrg")
+    val locationId: String
 ) {
     companion object {
         fun createModel(timeStamp: Long, level: InventoryLevelPayload, doAction: SetOrAdjust): Result<InventoryLevel> {
             return try {
                 Result.success(
                     InventoryLevel(
-                        inventoryItem = InventoryItemPayload.createModel(level.inventoryItem).getOrThrow(),
-                        available = Quantity.create(level.quantity).getOrThrow(),
+                        sku = Sku.create(level.sku).getOrThrow(),
+                        quantity = Quantity.create(level.quantity).getOrThrow(),
                         locationId = level.locationId,
                         action = doAction,
-                        effectiveTs = UtcTimestamp.create(level.effectiveTs ?: timeStamp).getOrThrow()
+                        inventoryEventTs = UtcTimestamp.create(level.inventoryEventTs ?: timeStamp).getOrThrow()
                     )
                 )
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
-    }
-}
-
-
-data class InventoryItemPayload(
-    @Schema(description = "the cost of one item")
-    val cost: Double,
-    @Schema(description = "the item's sku - may not be an empty string", example = "UGS-BLK-10")
-    val sku: String
-) {
-    companion object {
-        fun createModel(item: InventoryItemPayload): Result<InventoryItem> {
-            return try {
-                Result.success(InventoryItem(Money.create(item.cost).getOrThrow(), Sku.create(item.sku).getOrThrow()))
             } catch (e: Exception) {
                 Result.failure(e)
             }
@@ -114,13 +96,13 @@ data class InventoryLevelResult(
     @Schema(description = "utc timestamp - denotes the triggering event's time stamp")
     val effectiveTs: Long?,
     val sku: String,
-    val locationId: Int,
+    val locationId: String,
 ) {
     companion object {
         fun create(level: InventoryLevel) =
             InventoryLevelResult(
-                effectiveTs = level.effectiveTs.value,
-                sku = level.inventoryItem.sku.value,
+                effectiveTs = level.inventoryEventTs.value,
+                sku = level.sku.value,
                 locationId = level.locationId
             )
     }
