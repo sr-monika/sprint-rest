@@ -94,16 +94,18 @@ data class InventoryLevelPayload(
 
 data class InventoryLevelResult(
     @Schema(description = "utc timestamp - denotes the triggering event's time stamp")
-    val effectiveTs: Long?,
+    val inventoryEventTs: Long?,
     val sku: String,
     val locationId: String,
+    val action: SetOrAdjust
 ) {
     companion object {
         fun create(level: InventoryLevel) =
             InventoryLevelResult(
-                effectiveTs = level.inventoryEventTs.value,
+                inventoryEventTs = level.inventoryEventTs.value,
                 sku = level.sku.value,
-                locationId = level.locationId
+                locationId = level.locationId,
+                action = level.action
             )
     }
 }

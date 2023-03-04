@@ -5,8 +5,8 @@ import mu.KotlinLogging
 class SomeOtherService<T>() : DataOutlet<T> {
     private val logger = KotlinLogging.logger {}
 
-    override fun inform(data: T): Result<T> {
+    override fun inform(data: T): T {
         logger.info { data }
-        return Result.success(data)
+        return data
     }
 }
