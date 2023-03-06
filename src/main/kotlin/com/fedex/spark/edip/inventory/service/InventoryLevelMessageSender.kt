@@ -8,12 +8,12 @@ object InventoryLevelMessageSender : DataOutlet<InventoryLevel> {
 
     private val logger = KotlinLogging.logger {}
 
-    override fun inform(data: InventoryLevel): Result<InventoryLevel> {
+    override fun inform(data: InventoryLevel): InventoryLevel {
         logger.info { data }
-        return if (data.action == SetOrAdjust.FAILURE) {
-            Result.failure(Exception("failed due to action == ${data.action}"))
-        } else
-            Result.success(data)
+        if (data.action == SetOrAdjust.FAILURE) {
+            logger.error("failed due to action == ${data.action} -- how will we handle send errors ?")
+        }
+        return data
     }
 
 }
