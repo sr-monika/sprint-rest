@@ -4,16 +4,41 @@ enum class SetOrAdjust {
     SET, ADJUST, FAILURE
 }
 
-class Money private constructor(set: Int) {
-    val value: Int = set
+class Organization private constructor(set: String) {
+    val value: String = set
 
     companion object {
-        fun create(value: Double) = Result.success(Money((value * 100).toInt()))
+        fun create(value: String) =
+            if (!value.isBlank())
+                Result.success(Organization(value))
+            else
+                Result.failure(javax.validation.ValidationException("Organization may not be empty"))
     }
 }
 
+class SubOrganization private constructor(set: String) {
+    val value: String = set
+
+    companion object {
+        fun create(value: String) =
+            if (!value.isBlank())
+                Result.success(SubOrganization(value))
+            else
+                Result.failure(javax.validation.ValidationException("SubOrganization may not be empty"))
+    }
+}
+
+//class Money private constructor(set: Int) {
+//    val value: Int = set
+//
+//    companion object {
+//        fun create(value: Double) = Result.success(Money((value * 100).toInt()))
+//    }
+//}
+
 class UtcTimestamp private constructor(set: Long) {
     val value: Long = set
+
     companion object {
         fun create(value: Long) =
             if (value >= 0)
@@ -39,7 +64,9 @@ class Sku private constructor(set: String) {
 
 class Quantity private constructor(set: Int) {
     val value: Int = set
+
     companion object {
         fun create(value: Int) = Result.success(Quantity(value))
     }
 }
+

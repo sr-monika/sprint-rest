@@ -6,4 +6,6 @@ data class InventoryLevel(
     val sku: Sku,
     val quantity: Quantity,
     val locationId: String,
+    val org: Organization,
+    val subOrg: SubOrganization
 )

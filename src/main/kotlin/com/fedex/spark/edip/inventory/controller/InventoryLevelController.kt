@@ -7,6 +7,8 @@ import com.fedex.spark.edip.inventory.model.SetOrAdjust
 import com.fedex.spark.edip.inventory.model.Sku
 import com.fedex.spark.edip.inventory.model.UtcTimestamp
 import com.fedex.spark.edip.inventory.nowTs
+import com.fedex.spark.edip.inventory.service.AuthInfo
+import com.fedex.spark.edip.inventory.service.AuthService
 import com.fedex.spark.edip.inventory.service.InventoryLevelMessageSender
 import com.fedex.spark.edip.inventory.service.SomeOtherService
 import io.swagger.v3.oas.annotations.Operation
@@ -15,6 +17,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 
@@ -24,29 +27,37 @@ class InventoryLevelController {
 
     @PostMapping("/inventoryLevel/set")
     @Operation(description = "Set level for given sku and locatio to given quantity")
-    fun postSetItemLevel(@RequestBody request: InventoryLevelPayload): ResponseEntity<InventoryLevelResult> =
-        processItemLevelChange(request, SetOrAdjust.SET)
+    fun postSetItemLevel(@RequestBody request: InventoryLevelPayload,
+                         @RequestHeader("authTolken") token: String): ResponseEntity<InventoryLevelResult> =
+        processItemLevelChange(request, token, SetOrAdjust.SET)
 
     @PostMapping("/inventoryLevel/adjust")
     @Operation(description = "Adjust level for given sku and location with given quantity")
-    fun postAdjustItemLevel(@RequestBody request: InventoryLevelPayload): ResponseEntity<InventoryLevelResult> =
-        processItemLevelChange(request, SetOrAdjust.ADJUST)
+    fun postAdjustItemLevel(@RequestBody request: InventoryLevelPayload,
+                            @RequestHeader("authTolken") token: String): ResponseEntity<InventoryLevelResult> =
+        processItemLevelChange(request, token, SetOrAdjust.ADJUST)
 
     @PostMapping("/inventoryLevel/failure")
     @Operation(description = "Trigger Error")
-    fun postSendErrorItemLevel(@RequestBody request: InventoryLevelPayload): ResponseEntity<InventoryLevelResult> =
-        processItemLevelChange(request, SetOrAdjust.FAILURE)
+    fun postSendErrorItemLevel(@RequestBody request: InventoryLevelPayload, @RequestHeader("authTolken") token: String): ResponseEntity<InventoryLevelResult> =
+        processItemLevelChange(request, token, SetOrAdjust.FAILURE)
 
     private fun processItemLevelChange(
         request: InventoryLevelPayload,
+        authToken: String,
         action: SetOrAdjust
     ): ResponseEntity<InventoryLevelResult> {
-        val data = InventoryLevelPayload.createModel(nowTs() /* should take from header */, request, action)
-        data.onSuccess {
-            InventoryLevelMessageSender.inform(it)
-            someOtherService.inform(it)
+        val authInfo = AuthService.authenticate(authToken)
+        return if (authInfo == null) {
+            ResponseEntity(HttpStatus.UNAUTHORIZED)
+        } else {
+            val data = InventoryLevelPayload.createModel(nowTs() /* should take from header */, request, action, authInfo)
+            data.onSuccess {
+                InventoryLevelMessageSender.inform(it)
+                someOtherService.inform(it)
+            }
+            return returnResult(data.flatMap { Result.success(InventoryLevelResult.create(it)) })
         }
-        return returnResult(data.flatMap { Result.success(InventoryLevelResult.create(it)) })
     }
 
     fun <T> returnResult(result: Result<T>): ResponseEntity<T> {
@@ -73,7 +84,7 @@ data class InventoryLevelPayload(
     val locationId: String
 ) {
     companion object {
-        fun createModel(timeStamp: Long, level: InventoryLevelPayload, doAction: SetOrAdjust): Result<InventoryLevel> {
+        fun createModel(timeStamp: Long, level: InventoryLevelPayload, doAction: SetOrAdjust, authInfo: AuthInfo): Result<InventoryLevel> {
             return try {
                 Result.success(
                     InventoryLevel(
@@ -81,7 +92,9 @@ data class InventoryLevelPayload(
                         quantity = Quantity.create(level.quantity).getOrThrow(),
                         locationId = level.locationId,
                         action = doAction,
-                        inventoryEventTs = UtcTimestamp.create(level.inventoryEventTs ?: timeStamp).getOrThrow()
+                        inventoryEventTs = UtcTimestamp.create(level.inventoryEventTs ?: timeStamp).getOrThrow(),
+                        org = authInfo.org,
+                        subOrg = authInfo.subOrg
                     )
                 )
             } catch (e: Exception) {
@@ -97,7 +110,9 @@ data class InventoryLevelResult(
     val inventoryEventTs: Long?,
     val sku: String,
     val locationId: String,
-    val action: SetOrAdjust
+    val action: SetOrAdjust,
+    val org: String,
+    val subOrg: String
 ) {
     companion object {
         fun create(level: InventoryLevel) =
@@ -105,7 +120,9 @@ data class InventoryLevelResult(
                 inventoryEventTs = level.inventoryEventTs.value,
                 sku = level.sku.value,
                 locationId = level.locationId,
-                action = level.action
+                action = level.action,
+                org = level.org.value,
+                subOrg = level.subOrg.value
             )
     }
 }
