@@ -2,7 +2,7 @@ package com.shoprunner.cosmos
 
 import arrow.core.flatMap
 
-inline fun <A> A.success(): Result<A> = Result.success(this)
+fun <A> A.success(): Result<A> = Result.success(this)
 
 fun <A> Throwable.failure(): Result<A> = Result.failure(this)
 
