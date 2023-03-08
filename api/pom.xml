@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.fedex</groupId>
-    <artifactId>edip-inventory-api</artifactId>
+    <artifactId>spark-inventory-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>spark edit inventory</name>
     <description>sparc inventory api, related service</description>
