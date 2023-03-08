@@ -10,7 +10,11 @@ open class ApiConfiguration(
     var clientId: String,
     var url: String,
     var key: String
-)
+) {
+    override fun toString(): String {
+        return "ApiConfiguration($url, $clientId, ${"*".repeat(key.length)})"
+    }
+}
 @Configuration
 @EnableConfigurationProperties(ApiConfiguration::class)
 class AppConfig
