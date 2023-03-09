@@ -18,3 +18,5 @@ open class ApiConfiguration(
 @Configuration
 @EnableConfigurationProperties(ApiConfiguration::class)
 class AppConfig
+
+

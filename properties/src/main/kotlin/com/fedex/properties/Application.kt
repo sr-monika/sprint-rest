@@ -8,14 +8,15 @@ import org.springframework.boot.runApplication
 
 
 @SpringBootApplication
-class Application : CommandLineRunner {
-	@Autowired
-	var service: ApiService? = null
-	override fun run(vararg args: String?) {
-		println(service)
-	}
+open class Application : CommandLineRunner {
+
+    @Autowired
+    var service: ApiService? = null
+    override fun run(vararg args: String?) {
+        service?.logMe()
+    }
 }
 
 fun main(args: Array<String>) {
-	runApplication<Application>(*args)
+    runApplication<Application>(*args)
 }

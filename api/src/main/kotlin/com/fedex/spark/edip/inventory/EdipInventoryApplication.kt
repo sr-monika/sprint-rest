@@ -25,7 +25,7 @@ class OpenApiConfiguration {
 }
 
 @SpringBootApplication
-class EdipInventoryApplication
+open class EdipInventoryApplication
 
 fun main(args: Array<String>) {
 	runApplication<EdipInventoryApplication>(*args)
