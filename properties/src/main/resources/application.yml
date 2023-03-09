@@ -1,3 +1,7 @@
+spring:
+  application:
+    name: "Properties and Logging"
+
 api:
   clientId: "client123"
   url: "https://api.url.com"

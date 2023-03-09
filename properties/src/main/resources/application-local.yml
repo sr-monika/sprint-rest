@@ -1,3 +1,6 @@
 api:
   url: "https://LOCAL.api.url.com"
   clientId: "local123"
+
+logging:
+  config: classpath:logback-local.xml
